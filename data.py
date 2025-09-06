@@ -157,7 +157,7 @@ def download_track(billboard, track_id):
 
 if __name__ == "__main__":
     billboard = mirdata.initialize('billboard')
-    # billboard.download()
+    billboard.download()
     billboard.validate()
     track = billboard.choice_track()
     print(track)

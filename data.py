@@ -118,21 +118,24 @@ class BillboardChromaDataset(Dataset):
         return len(self.track_ids)
 
     def __getitem__(self, idx):
-        tid = self.track_ids[idx]
-        track = self.billboard.track(tid)
+        try:
+            tid = self.track_ids[idx]
+            track = self.billboard.track(tid)
 
-        # Load chroma features: shape (n_frames, 24)
-        chroma = pd.read_csv(track.bothchroma_path, header=None).values
-        times = chroma[:, 1].astype(np.float32)
-        chroma = chroma[:, 2:].astype(np.float32)
+            # Load chroma features: shape (n_frames, 24)
+            chroma = pd.read_csv(track.bothchroma_path, header=None).values
+            times = chroma[:, 1].astype(np.float32)
+            chroma = chroma[:, 2:].astype(np.float32)
 
-        # Convert chord labels to frame-wise label list
-        n_frames = chroma.shape[0]
-        y_str = self.get_frame_labels(track, n_frames, times)
-        # Transform chord labels to index
-        y_idx = self.label_encoder.transform(y_str)
+            # Convert chord labels to frame-wise label list
+            n_frames = chroma.shape[0]
+            y_str = self.get_frame_labels(track, n_frames, times)
+            # Transform chord labels to index
+            y_idx = self.label_encoder.transform(y_str)
 
-        return torch.tensor(chroma), torch.tensor(y_idx, dtype=torch.long), tid
+            return torch.tensor(chroma), torch.tensor(y_idx, dtype=torch.long), tid
+        except ValueError:
+            return None
 
     def get_frame_labels(self, track, n_frames, times):
         labels = np.array(["N"] * n_frames, dtype=object)

@@ -34,6 +34,9 @@ class BiLSTMChordClassifier(nn.Module):
     
 
 def collate_fn(batch):
+    batch = [b for b in batch if b is not None]
+    if len(batch) == 0:
+        return None
     Xs, Ys, _ = zip(*batch)
 
     Xs = [x for x in Xs]  # [seq_len, input_dim]

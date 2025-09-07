@@ -162,7 +162,6 @@ if __name__ == "__main__":
     exp = f"bilstm_batch_{args.per_device_train_batch_size}_lr_{args.learning_rate}_epochs_{args.num_train_epochs}"
     wandb.init(project="chord_recognition", name=exp)
     wandb.config.update(args)
-    d
     trainer = Trainer(
         model=model,
         args=args,

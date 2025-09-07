@@ -142,34 +142,45 @@ def save_confusion_matrix(model, dataloader, label_encoder, device, save_path, t
 
     print(f"[TEST] Confusion matrix saved to {save_path}")
 
-
+def parse_args():
+    import argparse
+    parser = argparse.ArgumentParser(description="Train a chord recognition model.")
+    parser.add_argument("--batch_size", type=int, default=32, help="Batch size for training and evaluation.")
+    parser.add_argument("--learning_rate", type=float, default=3e-3, help="Learning rate.")
+    parser.add_argument("--epochs", type=int, default=50, help="Number of training epochs.")
+    parser.add_argument("--hidden_dim", type=int, default=256, help="Hidden dimension size for LSTM.")
+    parser.add_argument("--output_dir", type=str, default="./checkpoints", help="Directory to save checkpoints.")
+    args = parser.parse_args()
+    return args
 
 if __name__ == "__main__":
+    args = parse_args()
     billboard = mirdata.initialize('billboard')
-    model = BiLSTMChordClassifier(input_dim=24, hidden_dim=128, num_classes=25)
+    model = BiLSTMChordClassifier(input_dim=24, hidden_dim=args.hidden_dim, num_classes=25)
     train_dataset, val_dataset, test_dataset = split_dataset(billboard)
     label_encoder = train_dataset.label_encoder
     print(f"Train size: {len(train_dataset)}, Val size: {len(val_dataset)}, Test size: {len(test_dataset)}")
+    exp = f"bilstm_{args.hidden_dim}_batch_{args.batch_size}_lr_{args.learning_rate}_epochs_{args.epochs}"
+    wandb.init(project="chord_recognition", name=exp)
+    wandb.config.update(args)
+    batch_size = args.batch_size
     
-    batch_size = 32
-    
-    args = TrainingArguments(
-        output_dir="./checkpoints",
+    train_args = TrainingArguments(
+        output_dir=args.output_dir,
         per_device_train_batch_size=batch_size,
         per_device_eval_batch_size=batch_size,
-        learning_rate=1e-3,
+        learning_rate=args.learning_rate,
         eval_strategy="epoch",
         logging_strategy="epoch",
         save_strategy="no",
-        num_train_epochs=20,
+        num_train_epochs=args.epochs,
         report_to="wandb"
     )
-    exp = f"bilstm_batch_{args.per_device_train_batch_size}_lr_{args.learning_rate}_epochs_{args.num_train_epochs}"
-    wandb.init(project="chord_recognition", name=exp)
-    wandb.config.update(args)
+    wandb.config.update(train_args)
+
     trainer = Trainer(
         model=model,
-        args=args,
+        args=train_args,
         train_dataset=train_dataset,
         eval_dataset=val_dataset,
         data_collator=collate_fn,

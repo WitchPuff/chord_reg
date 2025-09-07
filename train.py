@@ -146,7 +146,7 @@ if __name__ == "__main__":
     label_encoder = train_dataset.label_encoder
     print(f"Train size: {len(train_dataset)}, Val size: {len(val_dataset)}, Test size: {len(test_dataset)}")
     
-    batch_size = 128
+    batch_size = 32
     
     args = TrainingArguments(
         output_dir="./checkpoints",

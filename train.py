@@ -139,9 +139,11 @@ def save_confusion_matrix(model, dataloader, label_encoder, device, save_path, t
 
     print(f"[TEST] Confusion matrix saved to {save_path}")
 
+
+
 if __name__ == "__main__":
     billboard = mirdata.initialize('billboard')
-    model = BiLSTMChordClassifier(input_dim=24, hidden_dim=128, num_classes=24)
+    model = BiLSTMChordClassifier(input_dim=24, hidden_dim=128, num_classes=25)
     train_dataset, val_dataset, test_dataset = split_dataset(billboard)
     label_encoder = train_dataset.label_encoder
     print(f"Train size: {len(train_dataset)}, Val size: {len(val_dataset)}, Test size: {len(test_dataset)}")

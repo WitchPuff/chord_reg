@@ -146,11 +146,12 @@ if __name__ == "__main__":
     label_encoder = train_dataset.label_encoder
     print(f"Train size: {len(train_dataset)}, Val size: {len(val_dataset)}, Test size: {len(test_dataset)}")
     
+    batch_size = 128
     
     args = TrainingArguments(
         output_dir="./checkpoints",
-        per_device_train_batch_size=256,
-        per_device_eval_batch_size=512,
+        per_device_train_batch_size=batch_size,
+        per_device_eval_batch_size=batch_size,
         learning_rate=1e-3,
         eval_strategy="epoch",
         logging_strategy="epoch",
@@ -161,7 +162,7 @@ if __name__ == "__main__":
     exp = f"bilstm_batch_{args.per_device_train_batch_size}_lr_{args.learning_rate}_epochs_{args.num_train_epochs}"
     wandb.init(project="chord_recognition", name=exp)
     wandb.config.update(args)
-    
+    d
     trainer = Trainer(
         model=model,
         args=args,
@@ -184,7 +185,7 @@ if __name__ == "__main__":
     wandb.log(metrics)
     save_confusion_matrix(
         model=model,
-        dataloader=torch.utils.data.DataLoader(test_dataset, batch_size=512, collate_fn=collate_fn),
+        dataloader=torch.utils.data.DataLoader(test_dataset, batch_size=batch_size, collate_fn=collate_fn),
         label_encoder=label_encoder,
         device=args.device if hasattr(args, "device") else "cuda" if torch.cuda.is_available() else "cpu",
         save_path="./confusion_matrices/confmat_test.png",

@@ -1,6 +1,7 @@
 #!/bin/bash
 # Define model variants
-MODELS=("bilstm" "bilstm_crf" "transformer" "tcn" "mamba")
+# MODELS=("bilstm" "bilstm_crf" "transformer" "tcn" "mamba")
+MODELS=("bilstm" "bilstm_crf" "tcn" "mamba")
 
 # Define hidden sizes to try
 HIDDENS=(64 128 256)

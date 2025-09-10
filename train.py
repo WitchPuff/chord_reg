@@ -207,7 +207,7 @@ if __name__ == "__main__":
         dataloader=torch.utils.data.DataLoader(test_dataset, batch_size=batch_size, collate_fn=collate_fn),
         label_encoder=label_encoder,
         device=args.device if hasattr(args, "device") else "cuda" if torch.cuda.is_available() else "cpu",
-        save_path="./confusion_matrices/confmat_test.png",
+        save_path=f"./{args.output_dir}/confmat_test.png",
         title="Confusion Matrix (Test Set)"
     )
     

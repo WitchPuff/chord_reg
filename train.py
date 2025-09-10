@@ -13,25 +13,21 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 from data import split_dataset
+from model import BiLSTMChordClassifier, BiLSTMCRFChordClassifier, TransformerChordClassifier, TCNChordClassifier, MambaChordClassifier
 
-class BiLSTMChordClassifier(nn.Module):
-    def __init__(self, input_dim=24, hidden_dim=128, num_classes=24):
-        super().__init__()
-        self.lstm = nn.LSTM(input_dim, hidden_dim, batch_first=True, bidirectional=True)
-        self.classifier = nn.Linear(hidden_dim * 2, num_classes)
-
-    def forward(self, input_values, labels=None):
-        out, _ = self.lstm(input_values)
-        logits = self.classifier(out)
-
-        if labels is not None:
-            loss_fn = nn.CrossEntropyLoss(ignore_index=-100)
-            loss = loss_fn(logits.view(-1, logits.size(-1)), labels.view(-1))
-            return {"logits": logits, "loss": loss}
-        
-        return {"logits": logits}
-    
-    
+def get_model(model_name, **kwargs):
+    if model_name == "bilstm":
+        return BiLSTMChordClassifier(**kwargs)
+    elif model_name == "bilstm_crf":
+        return BiLSTMCRFChordClassifier(**kwargs)
+    elif model_name == "transformer":
+        return TransformerChordClassifier(**kwargs)
+    elif model_name == "tcn":
+        return TCNChordClassifier(**kwargs)
+    elif model_name == "mamba":
+        return MambaChordClassifier(**kwargs)
+    else:
+        raise ValueError(f"Unknown model name: {model_name}")
 
 def collate_fn(batch):
     batch = [b for b in batch if b is not None]
@@ -140,7 +136,7 @@ def save_confusion_matrix(model, dataloader, label_encoder, device, save_path, t
     plt.savefig(save_path)
     plt.close()
 
-    print(f"[TEST] Confusion matrix saved to {save_path}")
+    print(f"[DEBUG] Confusion matrix saved to {save_path}")
 
 def parse_args():
     import argparse
@@ -150,17 +146,18 @@ def parse_args():
     parser.add_argument("--epochs", type=int, default=50, help="Number of training epochs.")
     parser.add_argument("--hidden_dim", type=int, default=256, help="Hidden dimension size for LSTM.")
     parser.add_argument("--output_dir", type=str, default="./checkpoints", help="Directory to save checkpoints.")
+    parser.add_argument("--model", type=str, default="bilstm", help="Model type to use.")
     args = parser.parse_args()
     return args
 
 if __name__ == "__main__":
     args = parse_args()
     billboard = mirdata.initialize('billboard')
-    model = BiLSTMChordClassifier(input_dim=24, hidden_dim=args.hidden_dim, num_classes=25)
+    model = get_model(args.model, input_dim=24, hidden_dim=args.hidden_dim, num_classes=25)
     train_dataset, val_dataset, test_dataset = split_dataset(billboard)
     label_encoder = train_dataset.label_encoder
     print(f"Train size: {len(train_dataset)}, Val size: {len(val_dataset)}, Test size: {len(test_dataset)}")
-    exp = f"bilstm_{args.hidden_dim}_batch_{args.batch_size}_lr_{args.learning_rate}_epochs_{args.epochs}"
+    exp = f"{args.model}_{args.hidden_dim}_batch_{args.batch_size}_lr_{args.learning_rate}_epochs_{args.epochs}"
     wandb.init(project="chord_recognition", name=exp)
     wandb.config.update(args)
     batch_size = args.batch_size

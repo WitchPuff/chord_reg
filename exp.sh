@@ -1,5 +1,4 @@
 #!/bin/bash
-which python
 # Define model variants
 MODELS=("bilstm" "bilstm_crf" "transformer" "tcn" "mamba")
 

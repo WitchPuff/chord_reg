@@ -164,8 +164,8 @@ if __name__ == "__main__":
     train_dataset, val_dataset, test_dataset = split_dataset(billboard)
     label_encoder = train_dataset.label_encoder
     print(f"Train size: {len(train_dataset)}, Val size: {len(val_dataset)}, Test size: {len(test_dataset)}")
-    exp = f"{args.model}_{args.hidden_dim}_batch_{args.batch_size}_lr_{args.learning_rate}_epochs_{args.epochs}"
-    wandb.init(project="chord_recognition", name=exp)
+    exp = f"{args.model}_{args.hidden_dim}_{args.batch_size}_{args.learning_rate}_{args.epochs}"
+    wandb.init(project="chord_reg", name=exp)
     wandb.config.update(args)
     batch_size = args.batch_size
     
@@ -189,7 +189,7 @@ if __name__ == "__main__":
         eval_dataset=val_dataset,
         data_collator=collate_fn,
         compute_metrics=get_metrics(),
-        callbacks=[ConfusionMatrixCallback(label_encoder), LogEpochCallback()]
+        callbacks=[ConfusionMatrixCallback(label_encoder, args.output_dir), LogEpochCallback()]
     )
     
     trainer.train()

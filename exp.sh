@@ -14,7 +14,7 @@ LR=5e-3
 for MODEL in "${MODELS[@]}"; do
   for H in "${HIDDENS[@]}"; do
     echo "Running model: $MODEL, hidden_dim: $H"
-    python train.py \
+    /home/tongtong/miniconda3/envs/mb/bin/python train.py \
       --model "$MODEL" \
       --hidden_dim "$H" \
       --epochs "$EPOCHS" \

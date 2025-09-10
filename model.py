@@ -1,7 +1,7 @@
-from torchcrf import CRF  # pip install pytorch-crf
+from torchcrf import CRF
 from torch import nn
 import torch
-from mamba_ssm import Mamba  # pip install mamba-ssm
+from mamba_ssm import Mamba
 
 
 class BiLSTMChordClassifier(nn.Module):

@@ -2,6 +2,7 @@ import torch
 from torch import nn
 from torch.nn.utils.rnn import pad_sequence
 from transformers import Trainer, TrainingArguments, TrainerCallback
+from transformers import TrainerCallback
 from sklearn.metrics import accuracy_score, f1_score
 import mirdata
 import os
@@ -138,13 +139,19 @@ def save_confusion_matrix(model, dataloader, label_encoder, device, save_path, t
 
     print(f"[DEBUG] Confusion matrix saved to {save_path}")
 
+
+class LogEpochCallback(TrainerCallback):
+    def on_log(self, args, state, control, logs=None, **kwargs):
+        if logs is not None:
+            logs["epoch"] = state.epoch  # 添加 epoch 到 wandb
+
 def parse_args():
     import argparse
     parser = argparse.ArgumentParser(description="Train a chord recognition model.")
     parser.add_argument("--batch_size", type=int, default=32, help="Batch size for training and evaluation.")
-    parser.add_argument("--learning_rate", type=float, default=3e-3, help="Learning rate.")
-    parser.add_argument("--epochs", type=int, default=50, help="Number of training epochs.")
-    parser.add_argument("--hidden_dim", type=int, default=256, help="Hidden dimension size for LSTM.")
+    parser.add_argument("--learning_rate", type=float, default=5e-3, help="Learning rate.")
+    parser.add_argument("--epochs", type=int, default=30, help="Number of training epochs.")
+    parser.add_argument("--hidden_dim", type=int, default=128, help="Hidden dimension size for LSTM.")
     parser.add_argument("--output_dir", type=str, default="./checkpoints", help="Directory to save checkpoints.")
     parser.add_argument("--model", type=str, default="bilstm", help="Model type to use.")
     args = parser.parse_args()
@@ -182,7 +189,7 @@ if __name__ == "__main__":
         eval_dataset=val_dataset,
         data_collator=collate_fn,
         compute_metrics=get_metrics(),
-        callbacks=[ConfusionMatrixCallback(label_encoder)]
+        callbacks=[ConfusionMatrixCallback(label_encoder), LogEpochCallback()]
     )
     
     trainer.train()

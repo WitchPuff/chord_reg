@@ -148,7 +148,7 @@ class LogEpochCallback(TrainerCallback):
 def parse_args():
     import argparse
     parser = argparse.ArgumentParser(description="Train a chord recognition model.")
-    parser.add_argument("--batch_size", type=int, default=32, help="Batch size for training and evaluation.")
+    parser.add_argument("--batch_size", type=int, default=16, help="Batch size for training and evaluation.")
     parser.add_argument("--learning_rate", type=float, default=5e-3, help="Learning rate.")
     parser.add_argument("--epochs", type=int, default=30, help="Number of training epochs.")
     parser.add_argument("--hidden_dim", type=int, default=128, help="Hidden dimension size for LSTM.")

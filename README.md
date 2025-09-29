@@ -8,4 +8,6 @@ For training: run `train.py`
 
 For the definition of models: see `model.py`.
 
+For replicating experiment: run `exp.sh`.
+
 For final report showing all experiment details: see `report.pdf`. 
